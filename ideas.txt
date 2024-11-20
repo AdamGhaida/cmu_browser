@@ -1,0 +1,11 @@
+password manager
+
+vertical or horizontal browser
+
+folders for tabs
+
+integrate it with LLMs
+
+different profiles (firebase)
+
+https://pypi.org/project/html2image/
