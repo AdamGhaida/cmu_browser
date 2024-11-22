@@ -3,8 +3,11 @@
 import os
 import time
 from selenium import webdriver
+from PIL import Image
 from selenium.webdriver.chrome.options import Options
-
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 class webClass:
 
@@ -12,17 +15,25 @@ class webClass:
         self.width = width
         self.height = height
         
-        self.seleniumOptionsInit()
-        
-        self.screenshotDirectory = "/backend/screenshots/"
-        self.screenshotName = "webPage.png"
-
-        self.screenshotPath = self.screenshotDirectory+self.screenshotName
-
-    def seleniumOptionsInit(self):
         # When selenium runs chrome in headless mode, 
         #   139 pixels of window size are the top bar 
-        chromeTopBarHeight = 139
+        self.chromeTopBarHeight = 139
+
+        self.seleniumOptionsInit()
+        
+        self.screenshotDirectory = "./backend/screenshots/"
+        self.screenshotName = "webPage.png"
+
+        self.previousScreenshotName = "previousWebPage.png"
+        self.screenshotPath = os.path.join(self.screenshotDirectory, self.screenshotName)
+        self.previousScreenshotPath = os.path.join(self.screenshotDirectory, self.previousScreenshotName)
+
+
+ 
+
+
+    def seleniumOptionsInit(self):
+        
 
         # Various options set up for the emulation of a browser
         chromeOptions = Options()
@@ -33,11 +44,15 @@ class webClass:
         chromeOptions.add_argument(f"window-size={self.width
                                             },{
                                                 self.height+\
-                                                chromeTopBarHeight}")
+                                                self.chromeTopBarHeight}")
         self.driver = webdriver.Chrome(options=chromeOptions)
+        self.actions = ActionChains(self.driver)
 
 
-    
+    def updateWindowSize(self, width, height):
+        print(height)
+        self.driver.set_window_size(width,height+self.chromeTopBarHeight)
+        print(self.driver.get_window_size())
     
     def getScreenshot(self):
         return self.screenshotPath
@@ -45,9 +60,52 @@ class webClass:
     def initPage(self,url):
         self.driver.get(url)
         time.sleep(2)  # Let the page load fully
-        self.updatePage()
+        
+    # Function to check if the image is valid
+    def is_valid_image(self, file_path):
+        try:
+            with Image.open(file_path) as img:
+                img.verify()  # Check if the image is valid
+            return True
+        except (IOError, SyntaxError) as e:
+            print(f"Invalid image: {file_path}")
+            return False
 
-    def updatePage(self):
-        self.driver.save_screenshot(self.screenshotPath)
-        print(f"Captured screenshot at {time.time()}")
-        print(self.driver.get_window_size())
+    # Update the page and put the screenshot path into the queue
+    def updatePage(self, screenshotQueue):
+        while True:
+            # Save the screenshot
+            self.driver.save_screenshot(self.screenshotPath)
+            
+
+            # Swap the current screenshot with the previous screenshot
+            
+            os.rename(self.screenshotPath, self.previousScreenshotPath)
+            
+            screenshotQueue.put(self.previousScreenshotPath)  # Put the previous screenshot path into the queue
+            
+            
+            time.sleep(1 / 120)
+
+    def click(self,x,y):
+        print("clicked at", x,y)
+        self.actions.move_by_offset(x,y).click().perform()
+        print("clicked at", x,y)
+        self.actions.move_by_offset(-x,-y).perform()
+    
+    
+    def typeInSearchField(self, text):
+        
+        # Find the search input field (e.g., Google's search bar)
+        search_field = self.driver.find_element(By.NAME, "q")  # Google's search input field
+        
+        # Clear any pre-filled text (optional)
+        search_field.clear()
+        
+        # Type the text
+        search_field.send_keys(text)
+        
+        # Optionally, submit by pressing Enter
+        
+        search_field.send_keys(Keys.RETURN)
+
