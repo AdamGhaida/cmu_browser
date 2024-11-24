@@ -1,5 +1,3 @@
-
-
 import os
 import time
 from selenium import webdriver
@@ -29,15 +27,12 @@ class webClass:
         self.previousScreenshotPath = os.path.join(self.screenshotDirectory, self.previousScreenshotName)
 
 
- 
-
-
     def seleniumOptionsInit(self):
         
 
         # Various options set up for the emulation of a browser
         chromeOptions = Options()
-        chromeOptions.add_argument("--headless")
+        # chromeOptions.add_argument("--headless")
         chromeOptions.add_argument("--no-sandbox")
         chromeOptions.add_argument("--disable-dev-shm-usage")
         chromeOptions.add_argument("--force-device-scale-factor=1")
@@ -85,12 +80,11 @@ class webClass:
             screenshotQueue.put(self.previousScreenshotPath)  # Put the previous screenshot path into the queue
             
             
-            time.sleep(1 / 120)
+            time.sleep(1 / 480)
 
     def click(self,x,y):
         print("clicked at", x,y)
         self.actions.move_by_offset(x,y).click().perform()
-        print("clicked at", x,y)
         self.actions.move_by_offset(-x,-y).perform()
     
     
@@ -98,14 +92,18 @@ class webClass:
         
         # Find the search input field (e.g., Google's search bar)
         search_field = self.driver.find_element(By.NAME, "q")  # Google's search input field
-        
-        # Clear any pre-filled text (optional)
-        search_field.clear()
-        
-        # Type the text
-        search_field.send_keys(text)
+
+        match text:
+            case "space":
+                search_field.send_keys(Keys.SPACE)
+            case "enter":
+                search_field.send_keys(Keys.ENTER)
+            case "tab":
+                search_field.send_keys(Keys.TAB)
+            case "backspace":
+                search_field.send_keys(Keys.BACK_SPACE)
+            case _:
+                search_field.send_keys(text)
         
         # Optionally, submit by pressing Enter
-        
-        search_field.send_keys(Keys.RETURN)
 

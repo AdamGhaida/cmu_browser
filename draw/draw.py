@@ -1,9 +1,10 @@
-
 from backend import webClass
 from cmu_graphics import *
 import threading
 import queue
 import os 
+
+
 
 def onAppStart(app):
     print(app.width,app.height)
@@ -35,6 +36,7 @@ def onAppStart(app):
 
 
 def redrawAll(app):
+    drawRect(0,0,app.width,app.height,fill="red")
     if app.isScreenshotReady:
         
         if not app.screenshotQueue.empty():
@@ -71,20 +73,8 @@ def onStep(app):
         
 def onKeyPress(app, key):
     print(f"Key pressed: {key}")
-
-    # Accumulate the current word based on key input
-    if key == "Space":
-        # When space is pressed, add the word to the input field and reset for next word
-        app.sel.typeInSearchField(app.inputWord)
-        app.inputWord = ""  # Clear the accumulated word
-    elif key == "Enter":
-        # Pressing Enter submits the current word and clears it
-        app.sel.typeInSearchField(app.inputWord)
-        app.currentWord = ""  # Clear the accumulated word
-    else:
-        # Append the character to the current word
-        app.inputWord += key
-
+    app.sel.typeInSearchField(key)
+        
 def onMousePress(app,x,y):
     if app.webPageXStart<x<app.width-10 and 0<y<app.height-10:
         print("clicked!!!", x,y)
