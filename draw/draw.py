@@ -83,17 +83,24 @@ def startScreenshotThread(app):
         app.screenshotThread.daemon = True  # Allow the thread to exit when the program exits
         app.screenshotThread.start()
 
+def onResize(app):
+    print(f"Window size changed to: {app.width}x{app.height}")
 
+    app.sel.updateWindowSize(app.width-app.webPageXStart-10,app.height-20)
+    # Update previous dimensions
+    app.previousWidth = app.width
+    app.previousHeight = app.height
+    
 def onStep(app):
     # startScreenshotThread(app)
 
-    if app.width != app.previousWidth or app.height != app.previousHeight:
-        print(f"Window size changed to: {app.width}x{app.height}")
+    # if app.width != app.previousWidth or app.height != app.previousHeight:
+    #     print(f"Window size changed to: {app.width}x{app.height}")
 
-        app.sel.updateWindowSize(app.width-app.webPageXStart-10,app.height-20)
-        # Update previous dimensions
-        app.previousWidth = app.width
-        app.previousHeight = app.height
+    #     app.sel.updateWindowSize(app.width-app.webPageXStart-10,app.height-20)
+    #     # Update previous dimensions
+    #     app.previousWidth = app.width
+    #     app.previousHeight = app.height
     
     app.currentImage = CMUImage(app.sel.updatePage())
         

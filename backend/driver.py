@@ -4,10 +4,13 @@ from selenium import webdriver
 from PIL import Image
 import io 
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from .tabs import tabsClass
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 class webClass:
 
@@ -48,7 +51,9 @@ class webClass:
 
         chromeOptions.add_argument(f"window-size={effectiveWidth},{
             effectiveHeight}")
-        self.driver = webdriver.Chrome(options=chromeOptions)
+        
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), 
+                                       options=chromeOptions)
         self.actions = ActionChains(self.driver)
 
 
