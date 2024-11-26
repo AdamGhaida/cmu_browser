@@ -1,10 +1,23 @@
 {
-    "tabs":
-    [
-        {
-            "favicon": ,
-            "name": "Google",
-            "url": "https://www.google.com"
-        }
-    ]
+  "tabs": [{
+  "favicon": "",
+  "name": "Google",
+  "url": "https://www.google.com"
+}, {
+  "favicon": "https://cmuq.com/icon.jpg",
+  "name": "CMU Homepage",
+  "url": "https://cmu.edu"
+}, {
+  "favicon": "https://youtube.com/icon.jpg",
+  "name": "YouTube",
+  "url": "https://youtube.com"
+}, {
+  "favicon": "https://hello.com/icon.jpg",
+  "name": "hello!",
+  "url": "https://hello.com"
+}, {
+  "favicon": "none",
+  "name": "StackOverflow",
+  "url": "https://stackoverflow.com"
+}]
 }
