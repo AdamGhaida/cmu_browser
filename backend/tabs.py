@@ -8,17 +8,14 @@ class tabsClass:
         scriptDir = os.path.dirname(os.path.abspath(__file__))
         self.jsonPath = os.path.join(scriptDir, "tabs.json")
 
-        self.tabsFileData = self.readData()
 
-
-
-        self.JSONInterface = JSONParser(self.tabsFileData)
+        self.JSONInterface = JSONParser()
         
         self.parsedTabs = self.parseTabs()
 
 
     def parseTabs(self):
-        return self.JSONInterface.parse()
+        return self.JSONInterface.parse(self.readData())
     
     def addTab(self, tabName, tabURL, faviconURL=""):        
         # If the "tabs" key doesn't exist, initialize it
@@ -42,6 +39,14 @@ class tabsClass:
         
         self.writeData(newJsonStr)
         print(f"Tab '{tabName}' added successfully.")
+
+    def removeTab(self, index):
+        removedTab = self.parsedTabs["tabs"].pop(index)
+
+        # Convert the updated dictionary back to JSON
+        newJsonStr = self.JSONInterface.dictToJSONString(self.parsedTabs)
+        self.writeData(newJsonStr)
+        
 
     def readData(self):
         with open(self.jsonPath, 'r') as JSONFile:

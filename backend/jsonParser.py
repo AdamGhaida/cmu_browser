@@ -2,13 +2,13 @@
 #   parser. I learned json parsing through 
 class JSONParser:
 
-    def __init__(self, data):
+    def __init__(self):
         self.index = 0  # we want to track the cursor position (index)
-        self.jsonString = data 
+        
 
 
-    def parse(self):
-        self.jsonString = self.jsonString.strip()
+    def parse(self, jsonString):
+        self.jsonString = jsonString.strip()
         self.index = 0
         return self.parseUnknownValue()
 
@@ -93,9 +93,10 @@ class JSONParser:
 
     # key-value-pair to JSON
     def KVPToJson(self, value):
-        # JSON's formatting works in a specific way, so for compatibility, 
-        #   we will export all the data as JSON. Also, for runtime efficiency, 
-        #   I'm checking the most popular JSON types first! 
+        # JSON's formatting isnt exactly like a dictionary in python
+        #   so for cross-compatability, i'm cleaning it up. Also, for 
+        #   runtime efficiency, I'm checking the most popular JSON 
+        #   types first. 
         if isinstance(value, str):
             return f'"{value}"'
         elif isinstance(value, bool):

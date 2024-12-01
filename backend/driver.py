@@ -44,6 +44,9 @@ class webClass:
         chromeOptions.add_argument("--no-sandbox")
         chromeOptions.add_argument("--disable-dev-shm-usage")
         chromeOptions.add_argument("--force-device-scale-factor=1")
+        # For audio
+        chromeOptions.add_argument("--autoplay-policy=no-user-gesture-required")  
+        chromeOptions.add_argument("--use-fake-ui-for-media-stream")
         
         #trying to fix the 
         effectiveWidth = self.width
@@ -52,8 +55,7 @@ class webClass:
         chromeOptions.add_argument(f"window-size={effectiveWidth},{
             effectiveHeight}")
         
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), 
-                                       options=chromeOptions)
+        self.driver = webdriver.Chrome(options=chromeOptions)
         self.actions = ActionChains(self.driver)
 
 
@@ -69,7 +71,11 @@ class webClass:
 
         self.driver.get(url)
 
-        
+    def getPageInfo(self):
+        name = self.driver.title
+        url = self.driver.current_url
+        return [name,url]
+
     # Function to check if the image is valid
     def is_valid_image(self, file_path):
         try:
@@ -130,6 +136,11 @@ class webClass:
                 return self.driver.find_element(By.XPATH, f"//input[@placeholder='{placeholder}']")
             except:
                 pass
+        
+        try:
+            return self.driver.switch_to.active_element
+        except:
+            pass
 
         return None  # If no search field is found
 
@@ -153,6 +164,4 @@ class webClass:
                 field.send_keys(Keys.BACK_SPACE)
             case _:
                 field.send_keys(text)
-        
-        # Optionally, submit by pressing Enter
 
