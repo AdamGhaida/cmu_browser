@@ -1,17 +1,14 @@
-# I felt like my code was lacking complexity, so i wrote a rudimentary JSON 
-#   parser. I learned json parsing through 
 class JSONParser:
-
     def __init__(self):
-        self.index = 0  # we want to track the cursor position (index)
-        
-
+        # we want to track the cursor position 
+        self.index = 0  
 
     def parse(self, jsonString):
         self.jsonString = jsonString.strip()
         self.index = 0
         return self.parseUnknownValue()
 
+    #Parsing a new file
     def parseUnknownValue(self):
         char = self.jsonString[self.index]
         if char == '"':
@@ -83,8 +80,8 @@ class JSONParser:
         while self.index < len(self.jsonString) and self.jsonString[self.index].isspace():
             self.index += 1
 
+    # This method converts a dictionary back into a JSON string
     def dictToJSONString(self, data):
-        # This method converts a dictionary back into a JSON string
         json_str = "{\n"
         for key, value in data.items():
             json_str += f'  "{key}": {self.KVPToJson(value)},\n'
@@ -94,7 +91,7 @@ class JSONParser:
     # key-value-pair to JSON
     def KVPToJson(self, value):
         # JSON's formatting isnt exactly like a dictionary in python
-        #   so for cross-compatability, i'm cleaning it up. Also, for 
+        #   so for cross-compat, i'm cleaning it up. Also, for 
         #   runtime efficiency, I'm checking the most popular JSON 
         #   types first. 
         if isinstance(value, str):
