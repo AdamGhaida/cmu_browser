@@ -1,5 +1,6 @@
 from cmu_graphics import *
 import math
+from PIL import *
 
 # Helper function to calculate RGB from HSV
 def hsvToRgb(h, s, v):
@@ -25,13 +26,15 @@ def hsvToRgb(h, s, v):
 def onAppStart(app):
     app.colorWheelCenter = (200, 200)
     app.colorWheelRadius = 100
-    app.selectedColor = 'rgb(255,255,255)'
+    app.selectedColor = rgb(255,255,255)
     app.setMaxShapeCount(100000000)
+    app.colorWheelImage = Image.open("draw/SCR-20241201-lsij.png").resize((200,200))
+
 
 # Draw the color wheel and selection
 def redrawAll(app):
-    drawColorWheel(app.colorWheelCenter[0], app.colorWheelCenter[1], app.colorWheelRadius)
-    drawRect(350, 150, 100, 100, fill="green", border='black', borderWidth=2)
+    drawImage(CMUImage(app.colorWheelImage), app.colorWheelCenter[0]-app.colorWheelRadius,app.colorWheelCenter[1]-app.colorWheelRadius)
+    drawRect(350, 150, 100, 100, fill=app.selectedColor, border='black', borderWidth=2)
     drawLabel("Selected Color", 400, 270, size=14, align='center')
 
 # Draw a color wheel
@@ -43,7 +46,7 @@ def drawColorWheel(cx, cy, radius):
             color = hsvToRgb(hue, saturation, 1.0)
             x = cx + math.cos(math.radians(angle)) * r
             y = cy + math.sin(math.radians(angle)) * r
-            drawRect(x, y, 1, 1, fill=color)
+            drawRect(x, y, 3,3, fill=color)
 
 # Detect user clicks and pick color
 def onMousePress(app, mouseX, mouseY):
@@ -55,5 +58,6 @@ def onMousePress(app, mouseX, mouseY):
         hue = (math.degrees(math.atan2(dy, dx)) + 360) % 360 / 360
         saturation = distance / app.colorWheelRadius
         app.selectedColor = hsvToRgb(hue, saturation, 1.0)
+        print(app.selectedColor)
 
 runApp()

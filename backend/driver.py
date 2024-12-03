@@ -8,7 +8,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from .tabs import tabsClass
 from webdriver_manager.chrome import ChromeDriverManager
 
 
@@ -21,9 +20,6 @@ class webClass:
         # When selenium runs chrome in headless mode, 
         #   139 pixels of window size are the top bar 
         self.chromeTopBarHeight = 139
-
-        self.tabDaemon = tabsClass()
-
 
         self.seleniumOptionsInit()
         
@@ -60,21 +56,24 @@ class webClass:
 
 
     def updateWindowSize(self, width, height):
-        print(height)
         self.driver.set_window_size(width,height+self.chromeTopBarHeight)
-        print(self.driver.get_window_size())
-    
+
+
     def getScreenshot(self):
         return self.screenshotPath
 
     def initPage(self,url):
 
         self.driver.get(url)
+        self.focusedURL = url
 
     def getPageInfo(self):
         name = self.driver.title
         url = self.driver.current_url
-        return [name,url]
+        return {
+            'name':name,
+            'url': url
+        }
 
     # Function to check if the image is valid
     def is_valid_image(self, file_path):
@@ -86,32 +85,24 @@ class webClass:
             print(f"Invalid image: {file_path}")
             return False
 
-    # Update the page and put the screenshot path into the queue
+    # Update the page and put the screenshot into the queue
     def updatePage(self):
-        # while True:
-        #     # Save the screenshot
-        #     # self.driver.save_screenshot(self.screenshotPath)
-            
-            temp = io.BytesIO(self.driver.get_screenshot_as_png())
+        temp = io.BytesIO(self.driver.get_screenshot_as_png())
 
-            currentImage = Image.open(temp)
+        currentImage = Image.open(temp)
 
-            return currentImage
-            # Swap the current screenshot with the previous screenshot
-            
-            os.rename(self.screenshotPath, self.previousScreenshotPath)
-            
-            screenshotQueue.put(self.previousScreenshotPath)  # Put the previous screenshot path into the queue
-            
-            
-            time.sleep(1 / 60)
+        return currentImage
+
 
     def click(self,x,y):
         print("clicked at", x,y)
         self.actions.move_by_offset(x,y).click().perform()
         self.actions.move_by_offset(-x,-y).perform()
-    
-    
+
+    def currentPageDifferent(self, pageInfo):
+        return pageInfo['url']!=self.driver.current_url
+
+
     def findInputField(self,name=None, id=None, class_name=None, placeholder=None):
         if name:
             try:
@@ -164,4 +155,13 @@ class webClass:
                 field.send_keys(Keys.BACK_SPACE)
             case _:
                 field.send_keys(text)
+    
 
+    def tabForward(self):
+        self.driver.execute_script("window.history.go(1)")
+
+    def tabBackward(self):
+        self.driver.execute_script("window.history.go(-1)")
+
+    def refresh(self):
+        self.driver.refresh()
