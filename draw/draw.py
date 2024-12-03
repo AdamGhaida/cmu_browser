@@ -7,7 +7,11 @@ from PIL import Image
 from . import drawUtils
     
 def onAppStart(app):
-    app.scottyEasterEggImage = CMUImage(Image.open("draw/asset/scottyEasterEgg.jpg"))
+    # easter egg stuff
+    scottyPhoto = Image.open("draw/asset/scottyEasterEgg.jpg").resize((150,150))
+    app.scottyEasterEggImage = CMUImage(scottyPhoto)
+    app.barkSound = Sound("asset/scottyBark.mp3")
+
 
     # colors! 
     app.cmuRed = rgb(196,18,48)
@@ -15,25 +19,32 @@ def onAppStart(app):
     app.cmuSkiboRed = rgb(149, 17, 32)
     app.cmuGreen = rgb(31, 76, 76)
 
+    # we want to speed up CMU_graphics a bit since we're going to 
+    # be pushing it to it's limits
     app.stepCounter=0
     app.stepsPerSecond = 60
 
+    #properties for the selenium render on CMU-graphics
     app.webPageXStart = (300/1710)*app.width
     app.webPageYStart = 10
 
-    # Web daemon
+    # Web interaction daemon
     app.webDaemon = webClass(app.width-app.webPageXStart-10,app.height-20)
-    app.webDaemon.updateWindowSize(app.width-app.webPageXStart-10,app.height-20)
+    app.webDaemon.updateWindowSize(app.width-app.webPageXStart-10,
+                                   app.height-20)
 
+    # Tab manager daemon
     app.tabDaemon = tabsClass()
 
+    # -1 is the index stored if and only if there is no currently focused tab.
+    #   i.e. the user is on the home page
     app.focusedTabIndex = -1
 
-    #nice home page i found
+    # nice home page i found
     app.homePage = "https://web.tabliss.io/"
     app.webPage = app.homePage
     app.loadedTabs = app.tabDaemon.parseTabs()
-    print(app.loadedTabs)
+
 
     #Waits until the page is done loading
     app.webDaemon.initPage(app.webPage)
@@ -48,19 +59,24 @@ def onAppStart(app):
     app.isScreenshotReady = False
     app.previousScreenshotPath = "./backend/screenshots/previousWebPage.png"
 
-    app.textBoxWord = ""  # Store the text entered in the text box
+    # Various properties and variables made for the new-tab button 
+    app.textBoxWord = ""  
     app.textBoxInFocus = False 
-    app.textBoxX = 100  # X position of the text box
-    app.textBoxY = 150  # Y position of the text box
-    app.textBoxWidth = 300  # Width of the text box
-    app.textBoxHeight = 40  # Height of the text box
-    app.cursorPosition = len(app.textBoxWord)  # Keep track of cursor position
+    app.textBoxX = 100  
+    app.textBoxY = 150  
+    app.textBoxWidth = 300  
+    app.textBoxHeight = 40  
+    app.cursorPosition = len(app.textBoxWord) 
     app.cursorBlink = True
 
+    # for tab closure functionality
     app.hoveredTab = None
 
+    # just to modularize our code and clean up the code base, we have 
+    #   an external class storing all of the complicated drawing.
     app.drawUtils = drawUtils.drawUtils()
 
+    # A nice software boot sound i sourced from copyright-free sources
     app.bootSound = Sound('asset/bootSound.mp3')
     app.bootSound.play(restart=True, loop=False)
 
@@ -72,18 +88,21 @@ def redrawAll(app):
 
     app.drawUtils.drawBrowserNavButtons(color=app.cmuSkiboRed)
     
-    app.drawUtils.drawRoundedRect(10,80,app.webPageXStart-20,30,10,app.cmuSkiboRed)
+    app.drawUtils.drawRoundedRect(10,80,app.webPageXStart-20,30,
+                                  10,app.cmuSkiboRed)
     drawLabel("New Tab +",((app.webPageXStart)/2),95)
 
     drawLine(10,120,148,120, fill=app.cmuDarkGrey)
 
     count = 0
+
     for tabGroup in app.loadedTabs['tabs']:
         tabName = tabGroup['name']
         if len(tabName)>19:
             tabName = tabName[:15]+"..."
 
-        app.drawUtils.drawRoundedRect(10,count*50+130,app.webPageXStart-20,30,10,app.cmuGreen)
+        app.drawUtils.drawRoundedRect(10,count*50+130,app.webPageXStart-20,
+                                      30,10,app.cmuGreen)
         drawLabel(tabName,((app.webPageXStart)/2),count*50+145)
         
         
@@ -94,12 +113,16 @@ def redrawAll(app):
         count+=1
 
     if app.textBoxInFocus:
+        drawImage(app.scottyEasterEggImage, 0,app.height-150,rotateAngle=45)
+
         drawRect(0,0,app.width,app.height,fill="black",opacity=50)
 
-        app.drawUtils.drawRoundedRect(app.width/9,app.height/5,7*(app.width)/9,app.height/5,
+        app.drawUtils.drawRoundedRect(app.width/9,app.height/5,7*(app.width)/9,
+                                      app.height/5,
                         app.height/15,app.cmuRed)
 
-        app.drawUtils.drawRoundedRect(app.width/9+10,app.height/5+10,7*(app.width)/9-20,
+        app.drawUtils.drawRoundedRect(app.width/9+10,app.height/5+10,
+                                      7*(app.width)/9-20,
                         app.height/5-20,app.height/22,"white")
         
         # Search or Internet Buttons:
@@ -109,18 +132,24 @@ def redrawAll(app):
         drawLabel("x",8/9 * app.width, app.height/5,size=16)
 
         
-        drawCircle(14/18 * app.width, (3/2)*app.height/5,min(app.height,app.width)/25,fill='silver')
+        drawCircle(14/18 * app.width, (3/2)*app.height/5,
+                   min(app.height,app.width)/25,fill='silver')
 
         drawLabel("G",14/18 * app.width, (3/2)*app.height/5,size=16)
         
-        drawCircle(15/18 * app.width, (3/2)*app.height/5,min(app.height,app.width)/25,fill='silver')
+        drawCircle(15/18 * app.width, (3/2)*app.height/5,
+                   min(app.height,app.width)/25,fill='silver')
 
         drawLabel("WWW",15/18 * app.width, (3/2)*app.height/5,size=12)
 
 
-        maxVisibleLength = int((13 / 18 * app.width - (app.width / 9 + 20)) // 12) - 3 
-        # TextBox Stuff:
-        if app.width/9+20 + 12*len(app.textBoxWord) > 13/18 * app.width:
+        
+        
+        # in some circumstances when the text exceeds the available space, 
+        #   we need to account for that by adding ellipses to the front
+        maxVisibleLength = int((13/18*app.width-(app.width/9+20))//12)-3 
+
+        if app.width/9+20+12*len(app.textBoxWord)>13/18*app.width:
              
             visibleSegment = app.textBoxWord[-maxVisibleLength:]  
             drawLabel("..." + visibleSegment, app.width / 9 + 20,
@@ -131,18 +160,25 @@ def redrawAll(app):
                 (2*(app.height/5+10)+app.height/5-20)/2, size=20, 
                 font='monospace', align='left')
 
-        # Optional: Draw a cursor at the end of the text (simulating a blinking cursor)
-        if app.cursorBlink:  # Toggle cursor visibility for blinking effect
+        # also, we also want to draw the blinking cursor, 
+        #   which is controlled inside of onStep(). also, we make 
+        #   sure that it does not overflow from the text box.
+        if app.cursorBlink:  
             if app.width/9+20 + 12*len(app.textBoxWord) < 13/18 * app.width:
                 cursorX = app.width/9+20 + 12*len(app.textBoxWord)
             else:
                 cursorX = app.width/9+20 + 12*(maxVisibleLength+3)
+            
             cursorY = (2*(app.height/5+10)+app.height/5-20)/2
             drawLine(cursorX, cursorY-10, cursorX, cursorY + 10, lineWidth=2)
         
     
 def onMouseMove(app, mouseX, mouseY):
-    app.hoveredTab = None  # Reset hovered tab
+    # reset the hovered tab so we don't need to turn it 
+    #   off if the mouse leaves the tab
+    app.hoveredTab = None  
+
+    # loop through all tabs and check if the mouse is inside that tab bar
     count = 0
     for tabIndex in range(len(app.loadedTabs['tabs'])):
         x = 10
@@ -154,26 +190,22 @@ def onMouseMove(app, mouseX, mouseY):
             break
         count += 1
 
-def startScreenshotThread(app):
-    if not hasattr(app, 'screenshotThread'):
-        app.screenshotThread = threading.Thread(target=app.webDaemon.updatePage, args=(app.screenshotQueue,))
-        app.screenshotThread.daemon = True  # Allow the thread to exit when the program exits
-        app.screenshotThread.start()
-
 def onResize(app):
-    print(f"Window size changed to: {app.width}x{app.height}")
 
-    app.webDaemon.updateWindowSize(app.width-app.webPageXStart-10,app.height-20)
+    app.webDaemon.updateWindowSize(app.width-app.webPageXStart-10,
+                                   app.height-20)
     # Update previous dimensions
     app.previousWidth = app.width
     app.previousHeight = app.height
 
 def onStep(app):
+    loadedTabs = app.loadedTabs['tabs']
 
     if app.focusedTabIndex != -1 and \
-        app.webDaemon.currentPageDifferent(app.loadedTabs['tabs'][app.focusedTabIndex]):
+        app.webDaemon.currentPageDifferent(loadedTabs[app.focusedTabIndex]):
         
-        app.tabDaemon.updateTab(app.focusedTabIndex, app.webDaemon.getPageInfo())
+        app.tabDaemon.updateTab(app.focusedTabIndex, 
+                                app.webDaemon.getPageInfo())
         
         app.loadedTabs = app.tabDaemon.parseTabs()
         
@@ -197,13 +229,17 @@ def onKeyPress(app, key):
     if key == 'backspace':  # Handle backspace
         app.textBoxWord = app.textBoxWord[:-1]
         app.cursorPosition = len(app.textBoxWord)  
+
     elif key == "space":
         app.textBoxWord += " "
         app.cursorPosition = len(app.textBoxWord)  
+
     elif key == 'enter': 
-        app.webDaemon.initPage(f"https://www.google.com/search?q={app.textBoxWord.replace(" ","+")}")
+        query = app.textBoxWord.replace(" ","+")
+        app.webDaemon.initPage(f"https://www.google.com/search?q={query}")
+        
         pageInfo = app.webDaemon.getPageInfo()
-        app.tabDaemon.addTab(*pageInfo)
+        app.tabDaemon.addTab(pageInfo)
         app.loadedTabs = app.tabDaemon.parseTabs()
         app.textBoxInFocus = False
         app.focusedTabIndex = len(app.loadedTabs)-1
@@ -214,80 +250,15 @@ def onKeyPress(app, key):
 
         
 def onMousePress(app,x,y):
-    if not app.textBoxInFocus and app.webPageXStart<x<app.width-10 and 0<y<app.height-10:
+    # selenium click. Since it's really intensive to process, we dont 
+    #   process anything afterwards.
+    if not app.textBoxInFocus and app.webPageXStart<x<app.width-10 \
+        and 0<y<app.height-10:
         app.webDaemon.click(x-app.webPageXStart,y-10)
         return
     
-    count = 0
-    for index, tabGroup in enumerate(app.loadedTabs['tabs']):
-
-        boxX = 10
-        boxY = count * 50 + 125
-        width = app.webPageXStart - 20
-        height = 30
-        
-        # Check if the mouse click is within the bounds of the current rectangle
-        if boxX <= x <= boxX + width and boxY <= y <= boxY + height:
-            print(f"Tab '{tabGroup['name']}' clicked!")
-            app.webDaemon.initPage(tabGroup['url'])
-            
-            app.webPage = tabGroup['url']
-            app.focusedTabIndex = index
-        
-        count += 1
-    
-    if 10 <= x <= app.webPageXStart-20 and 80 <= y <= 110:
-        # new tab 
-        app.textBoxWord = ""
-        app.textBoxInFocus = True
-    
-    if app.hoveredTab!=None and 5+app.webPageXStart-20<=x<=15+app.webPageXStart-20 and \
-          app.hoveredTab*50+125<=y<=app.hoveredTab*50+135:
-        print(app.hoveredTab, "REMOVED")
-        app.tabDaemon.removeTab(app.hoveredTab)
-        app.loadedTabs = app.tabDaemon.parseTabs()
-        if app.hoveredTab == app.focusedTabIndex:
-            app.focusedTabIndex = -1
-            app.webDaemon.initPage(app.homePage)
-        elif app.focusedTabIndex > app.hoveredTab:
-            app.focusedTabIndex-=1
-    
-    if app.textBoxInFocus:
-
-        if circularDistance((x,y),(8/9 * app.width,app.height/5)) <= 10:
-            app.textBoxInFocus = False 
-        
-        searchCircleRad = min(app.height,app.width)/25
-        if circularDistance((x,y),(14/18 * app.width, (3/2)*app.height/5)) <= searchCircleRad:
-            app.webDaemon.initPage(f"https://www.google.com/search?q={app.textBoxWord.replace(" ","+")}")
-            pageInfo = app.webDaemon.getPageInfo()
-            app.tabDaemon.addTab(*pageInfo)
-            app.loadedTabs = app.tabDaemon.parseTabs()
-            app.textBoxInFocus = False
-            app.focusedTabIndex = len(app.loadedTabs)-1
-
-        if circularDistance((x,y),(15/18 * app.width, (3/2)*app.height/5)) <= searchCircleRad:
-            try:
-                app.webDaemon.initPage(f"https://{app.textBoxWord}")
-                pageInfo = app.webDaemon.getPageInfo()
-                app.tabDaemon.addTab(*pageInfo)
-                app.loadedTabs = app.tabDaemon.parseTabs()
-                app.textBoxInFocus = False
-            except:
-                errorDict = [
-                    "404! here's scotty instead",
-                    "https://www.cmu.edu/brand/images/artifact-scotty-900x600-min.jpg",
-                    "error"
-                ]
-                
-                app.tabDaemon.addTab(*errorDict)
-                app.loadedTabs = app.tabDaemon.parseTabs()
-                app.textBoxInFocus = False
-            
-            app.focusedTabIndex = len(app.loadedTabs)-1
-
-    # Browser Nav
-
+    # Browser Nav (These are all constants since the browser's left 
+    #   bar is always a fixed length)
     if 10<=x<=40 and 15<=y<=65:
         app.webDaemon.tabBackward()
     elif 64<=x<=94 and 15<=y<=65:
@@ -296,8 +267,101 @@ def onMousePress(app,x,y):
         app.webDaemon.refresh()
 
 
-def circularDistance(xy1,xy2):
-    return ((xy1[0]-xy2[0])**2+(xy1[0]-xy2[0])**2)**0.5
+    count = 0
+    for index, tabGroup in enumerate(app.loadedTabs['tabs']):
+
+        boxX = 10
+        boxY = count * 50 + 125
+        width = app.webPageXStart - 20
+        height = 30
+        
+        # check if the mouse click is within the bounds of a tab
+        if boxX <= x <= boxX + width and boxY <= y <= boxY + height:
+            app.webPage = tabGroup['url']
+            app.webDaemon.initPage(app.webPage)
+
+            app.focusedTabIndex = index
+            return
+        
+        count += 1
+    
+    # New tab button logic
+    if 10 <= x <= app.webPageXStart-20 and 80 <= y <= 110:
+        #
+        app.textBoxWord = ""
+        app.textBoxInFocus = True
+    
+    # we need to be able to remove tabs as well, and that's done here
+    if app.hoveredTab!=None and \
+          5+app.webPageXStart-20<=x<=15+app.webPageXStart-20 and \
+          app.hoveredTab*50+125<=y<=app.hoveredTab*50+135:
+        
+        app.tabDaemon.removeTab(app.hoveredTab)
+        app.loadedTabs = app.tabDaemon.parseTabs()
+
+        if app.hoveredTab == app.focusedTabIndex:
+            app.focusedTabIndex = -1
+            app.webDaemon.initPage(app.homePage)
+
+        elif app.focusedTabIndex > app.hoveredTab:
+            app.focusedTabIndex-=1
+        
+        return
+    
+    # All the functionality for the new tab interface
+    if app.textBoxInFocus:
+        # closing the new tab incase the user changes their mind.
+        if app.drawUtils.circularDistance((x,y),
+                                          (8/9 * app.width,app.height/5)) <= 10:
+            app.textBoxInFocus = False 
+            return
+        
+        # this is variable and resizable
+        searchCircleRad = min(app.height,app.width)/25
+
+        # if it's inside of the google search icon, then we click search (obv)
+        if app.drawUtils.circularDistance((x,y),(14/18 * app.width, 
+                                   (3/2)*app.height/5)) <= searchCircleRad:
+            query=app.textBoxWord.replace(" ","+")
+            app.webDaemon.initPage(f"https://www.google.com/search?q={query}")
+            pageInfo = app.webDaemon.getPageInfo()
+            app.tabDaemon.addTab(pageInfo)
+            app.loadedTabs = app.tabDaemon.parseTabs()
+            app.textBoxInFocus = False
+            app.focusedTabIndex = len(app.loadedTabs)-1
+            return
+
+        # if it's inside of the web search icon, then we click search (obv)
+        if app.drawUtils.circularDistance((x,y),(15/18 * app.width, 
+                                   (3/2)*app.height/5)) <= searchCircleRad:
+            # We want to make sure that the web page exists and has 
+            #   details instead of crashing
+            try:
+                app.webDaemon.initPage(f"https://{app.textBoxWord}")
+                pageInfo = app.webDaemon.getPageInfo()
+                app.tabDaemon.addTab(pageInfo)
+                app.loadedTabs = app.tabDaemon.parseTabs()
+                app.textBoxInFocus = False
+            except:
+                errorDict = {
+                    "name": "404! here's scotty instead",
+                    "url": "https://www.cmu.edu/brand/",
+
+                }
+                
+                app.tabDaemon.addTab(errorDict)
+                app.loadedTabs = app.tabDaemon.parseTabs()
+                app.textBoxInFocus = False
+            
+            app.focusedTabIndex = len(app.loadedTabs)-1
+            return
+        
+        if 50<=x<=150 and app.height-150<=y:
+            app.barkSound.play(restart=False,loop=False)
+
+
+
+
 
 
 runApp(width=900,height=485)

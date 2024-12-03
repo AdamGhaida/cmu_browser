@@ -1,3 +1,6 @@
 {
-  "tabs": []
+  "tabs": [{
+  "name": "15-112 Schedule",
+  "url": "https://web2.qatar.cmu.edu/cs/15112/schedule.html"
+}]
 }

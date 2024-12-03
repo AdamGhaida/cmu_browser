@@ -1,5 +1,4 @@
 import os
-import time
 from selenium import webdriver
 from PIL import Image
 import io 
@@ -8,7 +7,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 class webClass:
@@ -27,8 +25,10 @@ class webClass:
         self.screenshotName = "webPage.png"
 
         self.previousScreenshotName = "previousWebPage.png"
-        self.screenshotPath = os.path.join(self.screenshotDirectory, self.screenshotName)
-        self.previousScreenshotPath = os.path.join(self.screenshotDirectory, self.previousScreenshotName)
+        self.screenshotPath = os.path.join(self.screenshotDirectory, 
+                                           self.screenshotName)
+        self.previousScreenshotPath = os.path.join(self.screenshotDirectory, 
+                                                   self.previousScreenshotName)
 
 
     def seleniumOptionsInit(self):
@@ -103,7 +103,8 @@ class webClass:
         return pageInfo['url']!=self.driver.current_url
 
 
-    def findInputField(self,name=None, id=None, class_name=None, placeholder=None):
+    def findInputField(self,name=None, id=None, class_name=None, 
+                       placeholder=None):
         if name:
             try:
                 return self.driver.find_element(By.NAME, name)
@@ -138,7 +139,8 @@ class webClass:
     def typeInSearchField(self, text):
         
         # Find the search input field (e.g., Google's search bar)
-        field = self.findInputField(name="q", id="search-box", class_name="search-input")  # Google's search input field
+        field = self.findInputField(name="q", id="search-box", 
+                                    class_name="search-input")
         
         if field == None:
             print("no field found")

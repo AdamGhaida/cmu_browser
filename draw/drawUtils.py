@@ -68,26 +68,26 @@ class drawUtils:
         # Back button
         backCenterX = buttonSize // 2 + 10
         self.drawRoundedRect(backCenterX - buttonSize // 2, buttonY - buttonSize // 2,
-                            buttonSize, buttonSize, radius=5, color=color)
+                            buttonSize, buttonSize, radius=10, color=color)
         self.drawArrow(backCenterX + 10, buttonY, backCenterX - 10, buttonY, arrowSize=8, color="black")
 
         # Forward button
         forwardCenterX = backCenterX + buttonSize + padding
         self.drawRoundedRect(forwardCenterX - buttonSize // 2, buttonY - buttonSize // 2,
-                            buttonSize, buttonSize, radius=5, color=color)
+                            buttonSize, buttonSize, radius=10, color=color)
         self.drawArrow(forwardCenterX - 10, buttonY, forwardCenterX + 10, buttonY, arrowSize=8, color="black")
 
         # Refresh button
         refreshCenterX = forwardCenterX + buttonSize + padding
         self.drawRoundedRect(refreshCenterX - buttonSize // 2, buttonY - buttonSize // 2,
-                            buttonSize, buttonSize, radius=5, color=color)
+                            buttonSize, buttonSize, radius=10, color=color)
         
         # Draw the letter "R" in the center of the refresh button
         drawLabel("R", refreshCenterX, buttonY, size=18)
 
 
     def drawArrow(self, x1, y1, x2, y2, arrowSize=10, color="black"):
-        # Draw the arrow shaft
+        # Draw the arrow base
         drawLine(x1, y1, x2, y2, fill=color)
 
         # Calculate the direction of the arrow
@@ -95,7 +95,7 @@ class drawUtils:
         dy = y2 - y1
         angle = atan2(dy, dx)
 
-        # Calculate the points for the arrowhead
+        # end points og the arrow head pieces
         arrowPoint1 = (
             x2 - arrowSize * cos(angle - pi / 6),  # x-coordinate
             y2 - arrowSize * sin(angle - pi / 6),  # y-coordinate
@@ -105,9 +105,11 @@ class drawUtils:
             y2 - arrowSize * sin(angle + pi / 6),  # y-coordinate
         )
 
-        # Draw the arrowhead using three lines
-        drawLine(x2, y2, arrowPoint1[0], arrowPoint1[1], fill=color)  # Line 1
-        drawLine(x2, y2, arrowPoint2[0], arrowPoint2[1], fill=color)  # Line 2
+        # arrowhead
+        drawLine(x2, y2, arrowPoint1[0], arrowPoint1[1], fill=color)  
+        drawLine(x2, y2, arrowPoint2[0], arrowPoint2[1], fill=color)  
 
-        
+    # small helper function to check distances to centers of spheres
+    def circularDistance(self,xy1,xy2):
+        return ((xy1[0]-xy2[0])**2+(xy1[0]-xy2[0])**2)**0.5
 

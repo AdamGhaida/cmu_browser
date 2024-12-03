@@ -42,20 +42,14 @@ class tabsClass:
         self.writeData(newJsonStr)
         print(f"Tab at index {index} updated successfully.")
 
-    def addTab(self, tabName, tabURL, faviconURL=""):        
+    def addTab(self, pageInfo,):        
         # If the "tabs" key doesn't exist, initialize it
+        print("pageInfo", pageInfo)
         if "tabs" not in self.parsedTabs:
             self.parsedTabs["tabs"] = []
-        
-        # Create the new tab entry
-        newTabDict = {
-            "favicon": faviconURL,
-            "name": tabName,
-            "url": tabURL
-        }
 
         # Append the new tab to the list of tabs
-        self.parsedTabs["tabs"].append(newTabDict)
+        self.parsedTabs["tabs"].append(pageInfo)
 
         # Convert the dictionary back to JSON string format
         newJsonStr = self.JSONInterface.dictToJSONString(self.parsedTabs)
@@ -63,7 +57,7 @@ class tabsClass:
         # Write the updated JSON back to the file
         
         self.writeData(newJsonStr)
-        print(f"Tab '{tabName}' added successfully.")
+
 
     def removeTab(self, index):
         removedTab = self.parsedTabs["tabs"].pop(index)
